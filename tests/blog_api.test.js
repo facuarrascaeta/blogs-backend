@@ -38,7 +38,7 @@ const api = supertest(app)
 test('the app returns the correct amount of blog posts', async () => {
   const blogs = await api.get('/api/blogs')
     .expect(200)
-    .expect('Content-Type', /application\/json/)
+    .expect('Content-Type', /application\/json/).expect('Content-Type', /application\/json/)
 
   expect(blogs.body).toHaveLength(initialBlogs.length)
 })
@@ -48,6 +48,28 @@ test('the unique identifier property of the blog post is named id', async () => 
   const blogToCheck = blogs.body[0]
 
   expect(blogToCheck.id).toBeDefined()
+})
+
+test('a new blog post is added to the database', async () => {
+  const newBlog = {
+    title: 'First class tests',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+    likes: 10,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await Blog.find({})
+  const contents = blogsAtEnd.map(b => b.content)
+
+  expect(blogsAtEnd).toHaveLength(initialBlogs.length + 1)
+  expect(contents).toContain(newBlog.content)
+  
 })
 
 afterAll(() => {
