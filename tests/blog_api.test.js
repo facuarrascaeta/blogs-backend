@@ -65,10 +65,10 @@ test('a new blog post is added to the database', async () => {
     .expect('Content-Type', /application\/json/)
 
   const blogsAtEnd = await Blog.find({})
-  const contents = blogsAtEnd.map(b => b.content)
+  const titles = blogsAtEnd.map(b => b.title)
 
   expect(blogsAtEnd).toHaveLength(initialBlogs.length + 1)
-  expect(contents).toContain(newBlog.content)
+  expect(titles).toContain(newBlog.title)
   
 })
 
@@ -97,6 +97,19 @@ test('responds with 400 when title and url are missing', async () => {
     .post('/api/blogs/')
     .send(newBlog)
     .expect(400)
+})
+
+test('deleted blog is removed from database',  async () => {
+  const blogsAtStart = await Blog.find({})
+  const blogToRemove = blogsAtStart[0]
+  await api
+    .delete(`/api/blogs/${blogToRemove._id}`)
+    .expect(204)
+  const blogsAtEnd = await Blog.find({})
+  const titles = blogsAtEnd.map(b => b.title)
+
+  expect(blogsAtEnd).toHaveLength(initialBlogs.length - 1)
+  expect(titles).not.toContain(blogToRemove.title)
 })
 
 afterAll(() => {
