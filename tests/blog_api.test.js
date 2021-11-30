@@ -72,6 +72,21 @@ test('a new blog post is added to the database', async () => {
   
 })
 
+test('if likes property is missing from the request, it will default to 0', async () => {
+  const newBlog = {
+    title: 'First class tests',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+  }
+
+  const request = await api
+    .post('/api/blogs')
+    .send(newBlog)
+  
+  const blogAdded = request.body
+  expect(blogAdded.likes).toBe(0)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
