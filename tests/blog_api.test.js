@@ -87,6 +87,18 @@ test('if likes property is missing from the request, it will default to 0', asyn
   expect(blogAdded.likes).toBe(0)
 })
 
+test('responds with 400 when title and url are missing', async () => {
+  const newBlog = {
+    author: 'Robert C. Martin',
+    likes: 10
+  }
+
+  await api
+    .post('/api/blogs/')
+    .send(newBlog)
+    .expect(400)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
